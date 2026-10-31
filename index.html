@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daulat Dash: Misi Melaka | Sejarah Tingkatan 4 Bab 1</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Plus Jakarta Sans for 3D Cartoon Aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- MediaPipe Tasks Vision -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --gold-primary: #fbbf24;
+            --gold-dark: #b45309;
+            --royal-blue: #1e3a8a;
+        }
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #090d16;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-cartoon {
+            font-family: 'Fredoka', sans-serif;
+            letter-spacing: 0.02em;
+        }
+        /* 3D Cartoon UI Button & Card Styles */
+        .btn-3d-gold {
+            background: linear-gradient(180deg, #fde047 0%, #eab308 100%);
+            border: 3px solid #fef08a;
+            box-shadow: 0 6px 0 #a16207, 0 12px 20px rgba(0,0,0,0.45);
+            color: #422006;
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #a16207, 0 15px 25px rgba(0,0,0,0.5);
+        }
+        .btn-3d-gold:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #a16207, 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .btn-3d-emerald {
+            background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+            border: 3px solid #a7f3d0;
+            box-shadow: 0 6px 0 #065f46, 0 12px 20px rgba(0,0,0,0.4);
+            color: #ffffff;
+            transition: all 0.12s ease;
+        }
+        .btn-3d-emerald:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #065f46;
+        }
+
+        .btn-3d-slate {
+            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            border: 2px solid #94a3b8;
+            box-shadow: 0 5px 0 #0f172a, 0 8px 15px rgba(0,0,0,0.4);
+            color: #f8fafc;
+            transition: all 0.12s ease;
+        }
+        .btn-3d-slate:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #0f172a;
+        }
+
+        .card-3d-royal {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(14px);
+            border: 4px solid #fbbf24;
+            box-shadow: 0 10px 0 #78350f, 0 20px 45px rgba(0,0,0,0.75);
+        }
+
+        .banner-scroll {
+            background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+            border: 4px solid #d97706;
+            box-shadow: 0 8px 0 #78350f, 0 15px 30px rgba(0,0,0,0.55);
+            color: #451a03;
+        }
+
+        /* Full Screen AR Video Background */
+        #webcam-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+        .mirror-on {
+            transform: scaleX(-1);
+        }
+        /* Transparent Game Canvas Overlay */
+        #game-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        /* UI Overlay Layer */
+        #ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .pointer-auto {
+            pointer-events: auto;
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: floatSlow 3.2s ease-in-out infinite;
+        }
+        /* Custom Scrollbar for Review Modal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LAYER 1: WEBCAM VIDEO AR BACKGROUND -->
+    <video id="webcam-video" class="mirror-on" autoplay playsinline muted></video>
+
+    <!-- LAYER 2: TRANSPARENT GAME CANVAS (2D + 3D CARTOON RENDERING) -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- LAYER 3: INTERACTIVE HUD & SCREENS -->
+    <div id="ui-layer" class="flex flex-col justify-between p-3 sm:p-5">
+
+        <!-- TOP HUD BAR (Hidden on Main Menu) -->
+        <div id="hud-top" class="hidden w-full max-w-7xl mx-auto flex flex-col gap-2">
+            <!-- Row 1: Stats, Player Turn, Tracking Status & Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pointer-auto">
+                <!-- Left: Player Turn, Lives & Score -->
+                <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/90 border-2 border-amber-400 rounded-2xl px-3 py-1.5 shadow-lg backdrop-blur-md">
+                    <div id="turn-badge" class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-cartoon font-bold px-3 py-1 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-crown"></i>
+                        <span id="hud-turn-text"> Nakhoda 1</span>
+                    </div>
+
+                    <div id="hud-lives" class="flex items-center gap-1 text-red-500 text-base sm:text-xl px-1" title="Nyawa Kapal">
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+
+                    <div class="h-5 w-[2px] bg-slate-700"></div>
+
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-amber-400 font-cartoon text-sm sm:text-lg"><i class="fa-solid fa-coins"></i></span>
+                        <span id="hud-score" class="font-cartoon font-bold text-white text-base sm:text-xl">0</span>
+                    </div>
+
+                    <div id="hud-combo-box" class="hidden bg-orange-500/20 border border-orange-400 text-orange-300 font-cartoon font-bold px-2 py-0.5 rounded-lg text-xs sm:text-sm animate-bounce">
+                        🔥 <span id="hud-combo">x1</span>
+                    </div>
+                </div>
+
+                <!-- Center: Progress & Difficulty Badge -->
+                <div class="flex items-center gap-2 bg-slate-900/90 border-2 border-sky-400/70 rounded-2xl px-3 py-1.5 shadow-lg backdrop-blur-md">
+                    <span id="hud-chapter" class="text-xs sm:text-sm font-bold text-sky-300">Bahagian 1</span>
+                    <span class="text-slate-500">|</span>
+                    <span class="text-xs sm:text-sm font-cartoon text-amber-300">Misi <span id="hud-q-num">1</span>/20</span>
+                    <span id="hud-adaptive-badge" class="text-[11px] bg-emerald-500/30 border border-emerald-400 text-emerald-200 px-2 py-0.5 rounded-full font-bold">Adaptif: Normal</span>
+                </div>
+
+                <!-- Right: Tracking Status Indicators & Quick Toggles -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <!-- Hand & Head Status -->
+                    <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
+                        <span class="flex items-center gap-1" title="Status Jejak Tangan">
+                            <span id="dot-hand" class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+                            <i class="fa-solid fa-hand-sparkles text-amber-300"></i>
+                            <span id="txt-hand" class="hidden md:inline">Tangan</span>
+                        </span>
+                        <span class="text-slate-600">|</span>
+                        <span class="flex items-center gap-1" title="Status Pandu Arah Kepala">
+                            <span id="dot-face" class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+                            <i class="fa-solid fa-face-smile text-sky-300"></i>
+                            <span id="txt-face" class="hidden md:inline">Kepala</span>
+                        </span>
+                    </div>
+
+                    <!-- Retry Camera Button in HUD -->
+                    <button id="btn-hud-cam" onclick="GameApp.retryCameraFromHUD()" class="btn-3d-slate px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 text-emerald-300" title="Aktifkan / Tukar Kamera">
+                        <i class="fa-solid fa-video"></i>
+                        <span id="txt-hud-cam" class="hidden lg:inline">Kamera</span>
+                    </button>
+
+                    <!-- Mirror Toggle -->
+                    <button id="btn-mirror" onclick="GameApp.toggleMirror()" class="btn-3d-slate px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1" title="Kamera Cermin (Mirror)">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                        <span class="hidden lg:inline">Cermin: ON</span>
+                    </button>
+
+                    <!-- AR Skeleton Toggle -->
+                    <button id="btn-ar-mesh" onclick="GameApp.toggleARSkeleton()" class="btn-3d-slate px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1" title="Visual Titik Tangan AR">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                        <span class="hidden lg:inline">Titik AR</span>
+                    </button>
+
+                    <!-- Audio Toggle -->
+                    <button id="btn-audio" onclick="GameApp.toggleAudio()" class="btn-3d-slate px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold" title="Bunyi & Muzik">
+                        <i id="icon-audio" class="fa-solid fa-volume-high text-emerald-400"></i>
+                    </button>
+
+                    <!-- Nota Ilmu Button -->
+                    <button onclick="GameApp.openStudyModal()" class="btn-3d-slate px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-amber-300" title="Rujukan 20 Soalan & Jawapan">
+                        <i class="fa-solid fa-book-open"></i>
+                    </button>
+
+                    <!-- Pause Button -->
+                    <button onclick="GameApp.togglePause()" class="btn-3d-gold px-3 py-1.5 rounded-xl text-xs sm:text-sm font-cartoon font-bold">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Row 2: Royal Question Scroll Banner -->
+            <div class="w-full max-w-4xl mx-auto banner-scroll rounded-2xl px-4 py-2.5 sm:py-3 relative pointer-auto transition-all duration-300">
+                <div class="flex items-start sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-600 text-white flex flex-col items-center justify-center font-cartoon font-bold shrink-0 shadow-inner border-2 border-amber-300">
+                            <span class="text-[10px] uppercase leading-none">Soalan</span>
+                            <span id="banner-q-index" class="text-lg sm:text-xl leading-tight">1</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="banner-part-title" class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-800 text-amber-100">
+                                    BAHAGIAN 1: Ciri Negara Bangsa Kerajaan Alam Melayu
+                                </span>
+                                <span class="text-xs font-bold text-amber-900 hidden sm:inline">
+                                    <i class="fa-solid fa-hand-pointer"></i> Kekalkan Jari (1s) / Cubit (Pinch) / Pandu Kapal!
+                                </span>
+                            </div>
+                            <h2 id="banner-question-text" class="text-sm sm:text-base md:text-lg font-extrabold text-amber-950 mt-0.5 leading-snug">
+                                Nyatakan empat ciri utama negara bangsa kerajaan Alam Melayu.
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 1: MAIN MENU -->
+        <div id="screen-menu" class="flex-1 flex items-center justify-center p-2 pointer-auto">
+            <div class="card-3d-royal max-w-3xl w-full rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden">
+                <!-- Decorative Glow -->
+                <div class="absolute -top-20 -left-20 w-52 h-52 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-20 -right-20 w-52 h-52 bg-sky-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border-2 border-amber-400 text-amber-300 font-cartoon text-xs sm:text-sm mb-3 animate-float">
+                    <span>⛵</span>
+                    <span>SPM SEJARAH TINGKATAN 4 • BAB 1: WARISAN NEGARA BANGSA</span>
+                    <span>⚔️</span>
+                </div>
+
+                <!-- Game Title -->
+                <h1 class="font-cartoon text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-amber-400 to-orange-500 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                    DAULAT DASH
+                </h1>
+                <p class="font-cartoon text-xl sm:text-2xl text-sky-300 mt-1 tracking-wide">
+                    ✨ MISI MELAKA: PELAYARAN AR ✨
+                </p>
+
+                <p class="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mt-3 leading-relaxed">
+                    Alami pengembaraan 3D Cartoon berlatarkan kamera AR anda! Tangkap <strong>Peti Warkah Jawapan Tepat</strong> menggunakan <strong>Jari Telunjuk (Dwell 1s / Cubit Pinch)</strong> atau kemudi <strong>Jong Diraja Melaka</strong> dengan teleng kepala anda!
+                </p>
+
+                <!-- Game Mode Selector -->
+                <div class="mt-5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-2">Pilih Mod Pelayaran:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+                        <button id="mode-btn-bergilir" onclick="GameApp.setTurnMode('bergilir')" class="p-3 rounded-2xl border-3 border-amber-400 bg-amber-500/25 text-left transition-all flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-bold shrink-0">
+                                👥
+                            </div>
+                            <div>
+                                <div class="font-cartoon font-bold text-white text-base flex items-center gap-1.5">
+                                    Mod Bergilir (2 Pemain)
+                                    <span class="text-[10px] bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-extrabold">DISYORKAN</span>
+                                </div>
+                                <div class="text-xs text-slate-300">Nakhoda 1 & Nakhoda 2 bergilir menjawab setiap 2 soalan!</div>
+                            </div>
+                        </button>
+
+                        <button id="mode-btn-solo" onclick="GameApp.setTurnMode('solo')" class="p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-left transition-all flex items-center gap-3 opacity-80 hover:opacity-100">
+                            <div class="w-11 h-11 rounded-xl bg-sky-500 text-white flex items-center justify-center text-xl font-bold shrink-0">
+                                👑
+                            </div>
+                            <div>
+                                <div class="font-cartoon font-bold text-white text-base">Mod Nakhoda Solo</div>
+                                <div class="text-xs text-slate-300">Lengkapkan kesemua 20 misi Bab 1 secara individu.</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feature Pills -->
+                <div class="flex flex-wrap justify-center gap-2 mt-5 text-xs text-slate-200">
+                    <span class="bg-slate-800/90 border border-slate-600 px-3 py-1 rounded-full"><i class="fa-solid fa-hand-dots text-amber-400 mr-1"></i>Jejak Tangan AR + Pinch</span>
+                    <span class="bg-slate-800/90 border border-slate-600 px-3 py-1 rounded-full"><i class="fa-solid fa-user-astronaut text-sky-400 mr-1"></i>Pandu Arah Kepala</span>
+                    <span class="bg-slate-800/90 border border-slate-600 px-3 py-1 rounded-full"><i class="fa-solid fa-gauge-high text-emerald-400 mr-1"></i>Kesukaran Adaptif</span>
+                    <span class="bg-slate-800/90 border border-slate-600 px-3 py-1 rounded-full"><i class="fa-solid fa-keyboard text-purple-400 mr-1"></i>Sokongan Tetikus/Kekunci</span>
+                </div>
+
+                <!-- Primary Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
+                    <button onclick="GameApp.openCalibrationScreen()" class="btn-3d-gold w-full sm:w-auto px-8 py-3.5 rounded-2xl font-cartoon font-bold text-lg sm:text-xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> MULA MISI (AKTIFKAN AR)
+                    </button>
+                    <button onclick="GameApp.openStudyModal()" class="btn-3d-slate w-full sm:w-auto px-5 py-3.5 rounded-2xl font-cartoon font-bold text-base flex items-center justify-center gap-2 text-amber-300">
+                        <i class="fa-solid fa-scroll"></i> Arkib 20 Soalan Bab 1
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-400 mt-4">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i> Privasi Terjamin: Video kamera diproses 100% secara langsung pada peranti anda & tidak pernah disimpan.
+                </p>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: CAMERA PERMISSION & CALIBRATION / TUTORIAL -->
+        <div id="screen-calibration" class="hidden flex-1 flex items-center justify-center p-2 pointer-auto overflow-y-auto">
+            <div class="card-3d-royal max-w-2xl w-full rounded-3xl p-5 sm:p-7 text-center my-auto">
+                <div class="inline-block bg-sky-500/20 border border-sky-400 text-sky-300 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                    KALIBRASI KAWALAN HIBRID & TUTORIAL PANTAS
+                </div>
+                <h2 class="font-cartoon text-2xl sm:text-3xl font-bold text-white">
+                    Sedia Untuk Berlayar, Laksamana?
+                </h2>
+
+                <!-- Camera Loading / Status Box + Live Mini Preview & Device Switcher -->
+                <div id="calib-status-box" class="my-3 p-4 rounded-2xl bg-slate-900/90 border-2 border-amber-400/60 flex flex-col items-center justify-center gap-2.5">
+                    <!-- Live Camera Preview Window -->
+                    <div class="relative w-48 h-28 sm:w-56 sm:h-32 rounded-xl overflow-hidden border-2 border-amber-400 bg-slate-950 shadow-inner flex items-center justify-center">
+                        <video id="calib-preview-video" class="w-full h-full object-cover mirror-on hidden" autoplay playsinline muted></video>
+                        <div id="calib-preview-placeholder" class="text-xs text-slate-400 flex flex-col items-center gap-1 p-2">
+                            <i class="fa-solid fa-camera text-2xl text-amber-400"></i>
+                            <span>Pratonton Kamera AR</span>
+                        </div>
+                        <span id="calib-cam-badge" class="absolute bottom-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/85 text-amber-300 border border-amber-400/40">
+                            Menyambung...
+                        </span>
+                    </div>
+
+                    <div id="calib-spinner" class="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                    <p id="calib-status-text" class="text-sm sm:text-base font-bold text-amber-300">
+                        Memohon kebenaran kamera & memuatkan AI MediaPipe (Hand + Face Landmarker)...
+                    </p>
+                    <p id="calib-sub-text" class="text-xs text-slate-300 max-w-lg">
+                        Sila klik <strong>"Allow / Benarkan"</strong> pada pop-up pelayar anda. Jika kamera disekat atau gagal dibuka, gunakan butang <strong>Cuba Buka Kamera Semula</strong> di bawah.
+                    </p>
+
+                    <!-- Camera Controls: Device Selector & Retry Button -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 mt-1 w-full">
+                        <select id="camera-select" onchange="GameApp.switchCameraDevice(this.value)" class="hidden bg-slate-800 border border-amber-400/60 text-white text-xs rounded-xl px-3 py-2 font-semibold focus:outline-none">
+                        </select>
+                        <button onclick="GameApp.retryCamera()" class="btn-3d-slate px-3.5 py-1.5 rounded-xl text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate"></i> Cuba Buka Kamera Semula
+                        </button>
+                    </div>
+                </div>
+
+                <!-- How to Play Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left my-4">
+                    <div class="bg-slate-800/80 border border-amber-400/40 rounded-2xl p-3.5">
+                        <div class="text-2xl mb-1">☝️🤏</div>
+                        <h3 class="font-cartoon font-bold text-amber-300 text-sm">1. Jari Telunjuk (Tangan)</h3>
+                        <p class="text-xs text-slate-300 mt-1">
+                            Gerakkan kursor keris mengikut jari telunjuk. <strong>Kekalkan 1 saat (Dwell)</strong> di atas Peti Jawapan ATAU <strong>Cubit (Pinch)</strong> ibu jari & telunjuk untuk memilih!
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/80 border border-sky-400/40 rounded-2xl p-3.5">
+                        <div class="text-2xl mb-1">🙂⛵</div>
+                        <h3 class="font-cartoon font-bold text-sky-300 text-sm">2. Pandu Arah Kepala</h3>
+                        <p class="text-xs text-slate-300 mt-1">
+                            Teleng atau gerakkan kepala ke <strong>Kiri / Kanan</strong> untuk mengemudi Jong Diraja Melaka di bawah skrin bagi menyambut Peti Warkah yang jatuh!
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/80 border border-emerald-400/40 rounded-2xl p-3.5">
+                        <div class="text-2xl mb-1">🖱️⌨️</div>
+                        <h3 class="font-cartoon font-bold text-emerald-300 text-sm">3. Sokongan Fallback</h3>
+                        <p class="text-xs text-slate-300 mt-1">
+                            Boleh juga menggunakan <strong>Tetikus / Skrin Sentuh</strong> (Hover 1s atau Klik) serta kekunci <strong>A/D atau Anak Panah</strong> pada bila-bila masa.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-3 mt-5">
+                    <button id="btn-launch-arena" onclick="GameApp.startGameplay()" class="btn-3d-emerald px-8 py-3 rounded-2xl font-cartoon font-bold text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-anchor"></i> LANCARKAN PELAYARAN!
+                    </button>
+                    <button onclick="GameApp.backToMenu()" class="btn-3d-slate px-5 py-3 rounded-2xl font-cartoon font-bold text-sm">
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!--MODAL: TURN SWITCH (MOD BERGILIR) -->
+        <div id="modal-turn-switch" class="hidden fixed inset-0 z-30 flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 pointer-auto">
+            <div class="card-3d-royal max-w-md w-full rounded-3xl p-6 text-center animate-float">
+                <div class="w-16 h-16 rounded-2xl bg-amber-400 text-slate-950 font-cartoon text-3xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    👑
+                </div>
+                <div class="text-xs font-bold uppercase tracking-widest text-sky-300">MOD BERGILIR</div>
+                <h3 id="turn-modal-title" class="font-cartoon text-3xl font-bold text-amber-300 mt-1">
+                    Giliran Nakhoda 2!
+                </h3>
+                <p id="turn-modal-desc" class="text-sm text-slate-300 mt-2">
+                    Bersedia di hadapan kamera AR untuk menjawab 2 cabaran seterusnya.
+                </p>
+                <div class="grid grid-cols-2 gap-3 my-4 bg-slate-900/90 p-3 rounded-2xl border border-slate-700 text-xs">
+                    <div>
+                        <div class="text-slate-400">Nakhoda 1</div>
+                        <div id="turn-score-p1" class="font-cartoon text-lg font-bold text-amber-400">0 Mata</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400">Nakhoda 2</div>
+                        <div id="turn-score-p2" class="font-cartoon text-lg font-bold text-sky-400">0 Mata</div>
+                    </div>
+                </div>
+                <button onclick="GameApp.confirmTurnSwitch()" class="btn-3d-gold w-full py-3 rounded-2xl font-cartoon font-bold text-lg">
+                    Sedia! Teruskan Pelayaran ⛵
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL: PAUSE OVERLAY -->
+        <div id="modal-pause" class="hidden fixed inset-0 z-30 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 pointer-auto">
+            <div class="card-3d-royal max-w-md w-full rounded-3xl p-6 text-center">
+                <h3 class="font-cartoon text-3xl font-bold text-amber-300">PELAYARANack DIJEDA</h3>
+                <p class="text-sm text-slate-300 mt-2">Rehat sebentar, Laksamana. Selat Melaka menanti kepulangan anda.</p>
+                <div class="flex flex-col gap-3 mt-6">
+                    <button onclick="GameApp.togglePause()" class="btn-3d-emerald py-3 rounded-2xl font-cartoon font-bold text-lg">
+                        <i class="fa-solid fa-play mr-1"></i> Sambung Misi
+                    </button>
+                    <button onclick="GameApp.openStudyModal()" class="btn-3d-slate py-3 rounded-2xl font-cartoon font-bold text-base text-amber-300">
+                        <i class="fa-solid fa-book-open mr-1"></i> Semak Nota 20 Soalan
+                    </button>
+                    <button onclick="GameApp.backToMenu()" class="btn-3d-slate py-3 rounded-2xl font-cartoon font-bold text-base text-red-300">
+                        <i class="fa-solid fa-house mr-1"></i> Keluar ke Menu Utama
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAME OVER / RESULTS SCREEN -->
+        <div id="screen-gameover" class="hidden fixed inset-0 z-30 flex items-center justify-center bg-slate-950/85 backdrop-blur-lg p-3 sm:p-5 pointer-auto overflow-y-auto">
+            <div class="card-3d-royal max-w-2xl w-full rounded-3xl p-6 sm:p-8 text-center my-auto">
+                <div id="end-badge" class="inline-block px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-cartoon text-sm mb-2">
+                    TAMAT PELAYARAN DIRAJA
+                </div>
+                <h2 id="end-title" class="font-cartoon text-3xl sm:text-5xl font-bold text-white">
+                    TAHNIAH, LAKSAMANA ULUNG!
+                </h2>
+                <p id="end-subtitle" class="text-slate-300 text-sm sm:text-base mt-1">
+                    Anda telah mempertahankan kedaulatan Warisan Negara Bangsa!
+                </p>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+                    <div class="bg-slate-900/90 border border-amber-400/50 rounded-2xl p-3">
+                        <div class="text-xs text-slate-400">Skor Akhir</div>
+                        <div id="end-score" class="font-cartoon text-2xl sm:text-3xl font-bold text-amber-400">0</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-emerald-400/50 rounded-2xl p-3">
+                        <div class="text-xs text-slate-400">Ketepatan</div>
+                        <div id="end-accuracy" class="font-cartoon text-2xl sm:text-3xl font-bold text-emerald-400">100%</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-orange-400/50 rounded-2xl p-3">
+                        <div class="text-xs text-slate-400">Kombo Tertinggi</div>
+                        <div id="end-combo" class="font-cartoon text-2xl sm:text-3xl font-bold text-orange-400">x1</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-sky-400/50 rounded-2xl p-3">
+                        <div class="text-xs text-slate-400">Soalan Selesai</div>
+                        <div id="end-progress" class="font-cartoon text-2xl sm:text-3xl font-bold text-sky-400">20/20</div>
+                    </div>
+                </div>
+
+                <!-- Turn Mode Breakdown -->
+                <div id="end-turn-breakdown" class="bg-slate-900/80 border border-slate-700 rounded-2xl p-3.5 mb-5 flex justify-around items-center">
+                    <div>
+                        <span class="text-xs text-slate-400 block">👑 Nakhoda 1</span>
+                        <span id="end-p1-score" class="font-cartoon text-xl font-bold text-amber-300">0 Mata</span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-slate-700"></div>
+                    <div>
+                        <span class="text-xs text-slate-400 block">⚔️ Nakhoda 2</span>
+                        <span id="end-p2-score" class="font-cartoon text-xl font-bold text-sky-300">0 Mata</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <button onclick="GameApp.restartGame()" class="btn-3d-gold px-7 py-3.5 rounded-2xl font-cartoon font-bold text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Main Semula
+                    </button>
+                    <button onclick="GameApp.openStudyModal()" class="btn-3d-emerald px-6 py-3.5 rounded-2xl font-cartoon font-bold text-base flex items-center gap-2">
+                        <i class="fa-solid fa-book"></i> Ulang Kaji 20 Jawapan Tepat
+                    </button>
+                    <button onclick="GameApp.backToMenu()" class="btn-3d-slate px-5 py-3.5 rounded-2xl font-cartoon font-bold text-base">
+                        Menu Utama
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: ARKIB 20 SOALAN & JAWAPAN TEPAT BAB 1 -->
+        <div id="modal-study" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/85 backdrop-blur-lg p-3 sm:p-6 pointer-auto">
+            <div class="card-3d-royal max-w-4xl w-full max-h-[88vh] rounded-3xl flex flex-col overflow-hidden">
+                <div class="p-4 sm:p-5 bg-slate-900 border-b-2 border-amber-400 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">📜</span>
+                        <div>
+                            <h3 class="font-cartoon text-lg sm:text-2xl font-bold text-amber-300">
+                                Arkib Lengkap: 20 Soalan & Jawapan Tepat Bab 1
+                            </h3>
+                            <p class="text-xs text-slate-400">Sejarah Tingkatan 4 • Warisan Negara Bangsa</p>
+                        </div>
+                    </div>
+                    <button onclick="GameApp.closeStudyModal()" class="btn-3d-slate px-3.5 py-1.5 rounded-xl font-bold text-sm">
+                        <i class="fa-solid fa-xmark"></i> Tutup
+                    </button>
+                </div>
+                <div id="study-list-container" class="p-4 sm:p-6 overflow-y-auto space-y-4 text-left">
+                    <!-- Populated dynamically from the 20 official questions -->
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM BAR: FEEDBACK TOAST & CONTROLS HINT -->
+        <div id="hud-bottom" class="hidden w-full max-w-4xl mx-auto flex flex-col items-center gap-1 pointer-events-none">
+            <div id="feedback-banner" class="hidden px-5 py-2.5 rounded-2xl font-cartoon font-bold text-sm sm:text-base shadow-2xl border-2 text-center transition-all"></div>
+        </div>
+
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 0. PENAPIS LOG DIAGNOSTIK WASM MEDIAPIPE / TFLITE
+         * MediaPipe WASM mengeluarkan mesej status 'INFO: Created TensorFlow Lite XNNPACK...'
+         * menerusi saluran stderr (console.error). Penapis ini menghalang mesej INFO
+         * tersebut daripada dianggap sebagai ralat aplikasi.
+         * ============================================================================
+         */
+        (function suppressMediaPipeInfoErrors() {
+            const originalConsoleError = console.error;
+            const originalConsoleWarn = console.warn;
+
+            const isBenignMediaPipeLog = (args) => {
+                if (!args || args.length === 0) return false;
+                const firstArg = String(args[0] || '');
+                return (
+                    firstArg.includes('Created TensorFlow Lite XNNPACK delegate for CPU') ||
+                    firstArg.includes('INFO: Created TensorFlow Lite') ||
+                    firstArg.includes('gl_context') ||
+                    firstArg.includes('Graph successfully started running')
+                );
+            };
+
+            console.error = function (...args) {
+                if (isBenignMediaPipeLog(args)) return;
+                originalConsoleError.apply(console, args);
+            };
+
+            console.warn = function (...args) {
+                if (isBenignMediaPipeLog(args)) return;
+                originalConsoleWarn.apply(console, args);
+            };
+        })();
+
+        /**
+         * ============================================================================
+         * 1. DATA AKADEMIK RASMI: 20 SOALAN & JAWAPAN TEPAT BAB 1 SEJARAH TINGKATAN 4
+         * ============================================================================
+         */
+        const SEJARAH_QUESTIONS = [
+            // BAHAGIAN 1: Ciri Negara Bangsa Kerajaan Alam Melayu
+            {
+                id: 1,
+                part: "BAHAGIAN 1: Ciri Negara Bangsa Kerajaan Alam Melayu",
+                question: "Nyatakan empat ciri utama negara bangsa kerajaan Alam Melayu.",
+                correctShort: "Raja, Undang-undang, Wilayah Pengaruh, dan Rakyat",
+                fullExplanation: "Raja (tonggak utama kerajaan yang ditaati & dianggap suci), Undang-undang (menjamin kesejahteraan & panduan pentadbiran), Wilayah Pengaruh (kawasan rakyat memperakui pemerintahan raja), dan Rakyat (penduduk setia & tidak menderhaka).",
+                distractors: [
+                    "Presiden, Perlembagaan Moden, Sempadan Negeri, dan Pengundi",
+                    "Bendahara, Laksamana, Cap Mohor, dan Bunga Emas",
+                    "Tentera Upahan, Pelabuhan Bebas, Cukai Tanah, dan Istana"
+                ]
+            },
+            {
+                id: 2,
+                part: "BAHAGIAN 1: Ciri Negara Bangsa Kerajaan Alam Melayu",
+                question: "Apakah contoh undang-undang yang diamalkan oleh kerajaan Majapahit?",
+                correctShort: "Undang-undang Kutara Manawa",
+                fullExplanation: "Kerajaan Majapahit mengamalkan undang-undang Kutara Manawa sebagai panduan pentadbiran dan kesejahteraan kerajaan.",
+                distractors: [
+                    "Hukum Kanun Melaka",
+                    "Undang-Undang 99 Perak",
+                    "Piagam Madinah"
+                ]
+            },
+            {
+                id: 3,
+                part: "BAHAGIAN 1: Ciri Negara Bangsa Kerajaan Alam Melayu",
+                question: "Bagaimanakah rakyat kerajaan Srivijaya membuktikan kesetiaan mereka kepada raja?",
+                correctShort: "Upacara persetiaan & meminum air sumpah (Inskripsi Telaga Batu)",
+                fullExplanation: "Rakyat Srivijaya membuktikan kesetiaan melalui upacara persetiaan dan meminum air sumpah di mana Inskripsi Telaga Batu digunakan.",
+                distractors: [
+                    "Menyerahkan ufti bunga emas setiap tiga tahun",
+                    "Menandatangani watikah perjanjian di atas daun lontar",
+                    "Membina tembok pertahanan batu di sekeliling pelabuhan"
+                ]
+            },
+
+            // BAHAGIAN 2: Ciri Negara Bangsa Kesultanan Melayu Melaka (KMM)
+            {
+                id: 4,
+                part: "BAHAGIAN 2: Ciri Negara Bangsa Kesultanan Melayu Melaka",
+                question: "Senaraikan enam ciri negara bangsa Kesultanan Melayu Melaka.",
+                correctShort: "Kerajaan, Rakyat, Kedaulatan, Wilayah Pengaruh, Undang-undang & Lambang Kebesaran",
+                fullExplanation: "Enam ciri negara bangsa KMM ialah Kerajaan, Rakyat, Kedaulatan, Wilayah Pengaruh, Undang-undang, dan Lambang Kebesaran.",
+                distractors: [
+                    "Sultan, Parlimen, Pilihan Raya, Mahkamah, Tentera & Bendera",
+                    "Pelabuhan, Perdagangan, Mata Wang, Cukai, Kapal & Gudang",
+                    "Daulat, Tulah, Waadat, Kawasan Pegangan, Ufti & Kerah"
+                ]
+            },
+            {
+                id: 5,
+                part: "BAHAGIAN 2: Ciri Negara Bangsa Kesultanan Melayu Melaka",
+                question: "Bagaimanakah Kesultanan Melayu Melaka memperoleh wilayah pengaruhnya yang luas?",
+                correctShort: "Melalui tiga cara: Penaklukan, Naungan, dan Perkahwinan",
+                fullExplanation: "Wilayah pengaruh Melaka diperoleh melalui tiga cara, iaitu penaklukan, naungan, dan perkahwinan.",
+                distractors: [
+                    "Melalui pembelian tanah, pajakan pelabuhan, dan paksaan",
+                    "Melalui perjanjian perdagangan, pinjaman emas, dan migrasi",
+                    "Melalui hadiah empayar luar, undian pembesar, dan penerokaan"
+                ]
+            },
+            {
+                id: 6,
+                part: "BAHAGIAN 2: Ciri Negara Bangsa Kesultanan Melayu Melaka",
+                question: "Apakah fungsi cap mohor dalam Kesultanan Melayu Melaka?",
+                correctShort: "Digunakan untuk mengesahkan arahan daripada sultan",
+                fullExplanation: "Cap mohor merupakan lambang kebesaran yang digunakan untuk mengesahkan arahan dan titah daripada sultan.",
+                distractors: [
+                    "Digunakan sebagai mata wang rasmi urus niaga di pelabuhan",
+                    "Digunakan sebagai senjata peribadi Laksamana di laut",
+                    "Digunakan untuk menanda sempadan tanah pertanian rakyat"
+                ]
+            },
+
+            // BAHAGIAN 3: Sistem Pembesar Empat Lipatan
+            {
+                id: 7,
+                part: "BAHAGIAN 3: Sistem Pembesar Empat Lipatan",
+                question: "Apakah yang dimaksudkan dengan 'kawasan pegangan'?",
+                correctShort: "Kawasan (wilayah/sungai/pulau) kurniaan Sultan kepada Pembesar Berempat untuk ditadbir",
+                fullExplanation: "Kawasan pegangan ialah kawasan (wilayah, sungai, atau pulau) yang dikurniakan oleh Sultan Melaka kepada Pembesar Berempat untuk ditadbir dan diuruskan.",
+                distractors: [
+                    "Kawasan larangan di dalam istana khas untuk kerabat diraja",
+                    "Kawasan penempatan pedagang asing dari China dan India",
+                    "Kawasan perairan sempadan yang dikawal oleh angkatan lanun"
+                ]
+            },
+            {
+                id: 8,
+                part: "BAHAGIAN 3: Sistem Pembesar Empat Lipatan",
+                question: "Terangkan tiga peranan utama Bendahara dalam pentadbiran pusat Melaka.",
+                correctShort: "Ketua pentadbir, ketua turus angkatan tentera, serta penasihat & pemangku sultan",
+                fullExplanation: "Bendahara berperanan sebagai ketua pentadbir, ketua turus angkatan tentera, serta penasihat sultan dan pemangku sultan.",
+                distractors: [
+                    "Pengurus kewangan, pemungut cukai pelabuhan & ketua syahbandar",
+                    "Panglima angkatan laut, pengawal peribadi raja & ketua utusan",
+                    "Penjaga keamanan kota, hakim sempadan tanah & ketua protokol"
+                ]
+            },
+            {
+                id: 9,
+                part: "BAHAGIAN 3: Sistem Pembesar Empat Lipatan",
+                question: "Nyatakan peranan Penghulu Bendahari, Temenggung, dan Laksamana.",
+                correctShort: "Penghulu Bendahari (kewangan), Temenggung (keselamatan kota) & Laksamana (angkatan laut)",
+                fullExplanation: "Penghulu Bendahari: Menguruskan perbendaharaan/kewangan negara. Temenggung: Menjaga keselamatan & keamanan Kota Melaka. Laksamana: Panglima angkatan laut Melaka.",
+                distractors: [
+                    "Penghulu Bendahari (laut), Temenggung (kewangan) & Laksamana (kota)",
+                    "Penghulu Bendahari (tentera darat), Temenggung (agama) & Laksamana (cukai)",
+                    "Penghulu Bendahari (adat istana), Temenggung (pelabuhan) & Laksamana (hakim)"
+                ]
+            },
+
+            // BAHAGIAN 4: Hukum Kanun Melaka
+            {
+                id: 10,
+                part: "BAHAGIAN 4: Hukum Kanun Melaka",
+                question: "Nyatakan empat aspek utama yang terkandung dalam Hukum Kanun Melaka.",
+                correctShort: "Jenayah, Peranan Sultan dan Pembesar, Kekeluargaan, dan Ekonomi",
+                fullExplanation: "Empat aspek utama Hukum Kanun Melaka ialah Jenayah, Peranan Sultan dan Pembesar, Kekeluargaan, serta Ekonomi.",
+                distractors: [
+                    "Pelayaran, Perkapalan, Tugas Nakhoda, dan Cukai Pelabuhan",
+                    "Pertanian, Perhutanan, Perlombongan Bijih, dan Pertukangan",
+                    "Peperangan, Hubungan Diplomatik, Perisikan, dan Penjajahan"
+                ]
+            },
+            {
+                id: 11,
+                part: "BAHAGIAN 4: Hukum Kanun Melaka",
+                question: "Berdasarkan Fasal 5.1 dan Fasal 4 Hukum Kanun Melaka, apakah kesalahan yang boleh dikenakan hukuman bunuh?",
+                correctShort: "Membunuh tanpa pengetahuan raja/pembesar (Fasal 5.1) & ingkar/palsukan titah sultan (Fasal 4)",
+                fullExplanation: "Fasal 5.1: Membunuh orang lain tanpa pengetahuan raja atau pembesar. Fasal 4: Ingkar arahan dan memalsukan titah sultan.",
+                distractors: [
+                    "Lewat membayar cukai pasar & berniaga melebihi empat hari",
+                    "Gagal menghadiri gotong-royong & berpindah kampung tanpa izin",
+                    "Berلابuh di pelabuhan waktu malam & tidak membawa surat nakhoda"
+                ]
+            },
+            {
+                id: 12,
+                part: "BAHAGIAN 4: Hukum Kanun Melaka",
+                question: "Apakah syarat dan amalan urus niaga perniagaan yang ditetapkan dalam Fasal 30 Hukum Kanun Melaka?",
+                correctShort: "Amalan riba diharamkan; peniaga hendaklah akil baligh, siuman & melafazkan niat jual beli",
+                fullExplanation: "Dalam Fasal 30 Hukum Kanun Melaka, amalan riba diharamkan dan peniaga hendaklah akil baligh, siuman, serta melafazkan niat jual beli.",
+                distractors: [
+                    "Urus niaga hanya dibenarkan menggunakan emas tulen oleh bangsawan",
+                    "Kadar faedah pinjaman ditetapkan 20 peratus bagi pedagang luar",
+                    "Semua jual beli wajib dijalankan di hadapan Temenggung di istana"
+                ]
+            },
+
+            // BAHAGIAN 5: Undang-Undang Laut Melaka
+            {
+                id: 13,
+                part: "BAHAGIAN 5: Undang-Undang Laut Melaka",
+                question: "Siapakah tiga nakhoda yang mengusahakan penggubalan Undang-Undang Laut Melaka?",
+                correctShort: "Nakhoda Jenal, Nakhoda Diri, dan Nakhoda Sahak (diperkenan Sultan Mahmud Shah)",
+                fullExplanation: "Undang-Undang Laut Melaka diusahakan oleh Nakhoda Jenal, Nakhoda Diri, dan Nakhoda Sahak serta diperkenan oleh Sultan Mahmud Shah.",
+                distractors: [
+                    "Nakhoda Tanggang, Nakhoda Ragam, dan Nakhoda Budi",
+                    "Tun Perak, Hang Tuah, dan Tun Mutahir",
+                    "Syahbandar Raja, Laksamana Khoja Hassan, dan Demang Lebar Daun"
+                ]
+            },
+            {
+                id: 14,
+                part: "BAHAGIAN 5: Undang-Undang Laut Melaka",
+                question: "Apakah keistimewaan yang diperuntukkan kepada Nakhoda mengikut Fasal 13.1 Undang-Undang Laut Melaka?",
+                correctShort: "Berkuasa penuh (raja dalam pelayaran) & diberi keutamaan berniaga selama 4 hari",
+                fullExplanation: "Nakhoda berkuasa penuh (diibaratkan sebagai raja dalam pelayaran) dan diberikan keutamaan untuk berniaga selama empat hari.",
+                distractors: [
+                    "Dikecualikan daripada semua undang-undang jenayah di daratan Melaka",
+                    "Berhak melantik Syahbandar baharu di setiap pelabuhan yang disinggahi",
+                    "Menerima separuh daripada harta kerajaan di kawasan pegangan"
+                ]
+            },
+            {
+                id: 15,
+                part: "BAHAGIAN 5: Undang-Undang Laut Melaka",
+                question: "Mengapakah seorang Malim boleh dikenakan hukuman bunuh mengikut Fasal 9 Undang-Undang Laut Melaka?",
+                correctShort: "Kerana lalai menjalankan tugas sehingga menyebabkan pelanggaran dan kerosakan kapal",
+                fullExplanation: "Mengikut Fasal 9, Malim boleh dihukum bunuh sekiranya lalai dalam menjalankan tugas sehingga menyebabkan pelanggaran dan kerosakan kapal.",
+                distractors: [
+                    "Kerana berniaga lebih awal daripada Nakhoda apabila tiba di pelabuhan",
+                    "Kerana gagal mengutip cukai pelabuhan daripada pedagang asing",
+                    "Kerana menukar warna layar kapal tanpa kebenaran Penghulu Bendahari"
+                ]
+            },
+
+            // BAHAGIAN 6: Perjanjian Waadat & Konsep Tulah
+            {
+                id: 16,
+                part: "BAHAGIAN 6: Perjanjian Waadat & Konsep Tulah",
+                question: "Apakah maksud 'Waadat' dan siapakah dua tokoh yang memeterai perjanjian tersebut?",
+                correctShort: "Perjanjian taat setia antara Sang Sapurba (pemerintah) dengan Demang Lebar Daun (rakyat)",
+                fullExplanation: "Waadat ialah perjanjian taat setia yang dimeterai antara Sang Sapurba (mewakili golongan pemerintah) dengan Demang Lebar Daun (mewakili golongan diperintah/rakyat).",
+                distractors: [
+                    "Perjanjian perdagangan maritim antara Parameswara dengan Maharaja China",
+                    "Perjanjian sempadan wilayah antara Sultan Muzaffar Shah dengan Siam",
+                    "Perjanjian ketenteraan antara Bendahara Tun Perak dengan Laksamana"
+                ]
+            },
+            {
+                id: 17,
+                part: "BAHAGIAN 6: Perjanjian Waadat & Konsep Tulah",
+                question: "Apakah maksud 'Tulah' dalam konteks hubungan raja dan rakyat Melayu?",
+                correctShort: "Kecelakaan yang menimpa seseorang kerana melanggar larangan atau menderhaka kepada raja",
+                fullExplanation: "Tulah ialah kecelakaan yang menimpa seseorang kerana melanggar larangan atau menderhaka kepada raja.",
+                distractors: [
+                    "Anugerah pingat kebesaran kepada hulubalang yang menang perang",
+                    "Cukai tahunan yang wajib diserahkan oleh wilayah naungan",
+                    "Upacara pertabalan diraja yang diiringi paluan nobat istana"
+                ]
+            },
+
+            // BAHAGIAN 7: Peranan Pemerintah dan Diperintah
+            {
+                id: 18,
+                part: "BAHAGIAN 7: Peranan Pemerintah dan Diperintah",
+                question: "Senaraikan golongan yang membentuk golongan pemerintah dan golongan diperintah dalam Kesultanan Melayu Melaka.",
+                correctShort: "Pemerintah: Sultan, pembesar, kerabat raja & ulama | Diperintah: Peniaga, petani, tukang, nelayan & hamba",
+                fullExplanation: "Golongan Pemerintah: Sultan, pembesar, kerabat raja, dan ulama. Golongan Diperintah: Peniaga, petani, tukang, nelayan, serta hamba (hamba raja, hamba berhutang, hamba biasa).",
+                distractors: [
+                    "Pemerintah: Nakhoda, malim & syahbandar | Diperintah: Pembesar, ulama & tentera",
+                    "Pemerintah: Pedagang asing & bangsawan | Diperintah: Kerabat raja & penghulu",
+                    "Pemerintah: Tentera laut & tukang mahir | Diperintah: Ulama, petani & peniaga"
+                ]
+            },
+            {
+                id: 19,
+                part: "BAHAGIAN 7: Peranan Pemerintah dan Diperintah",
+                question: "Terangkan tiga peranan utama Sultan terhadap rakyat.",
+                correctShort: "Menaungi/menjaga keselamatan rakyat, mewujudkan perpaduan & kemakmuran, serta memperkenalkan undang-undang",
+                fullExplanation: "Peranan Sultan: 1. Menaungi dan menjaga keselamatan rakyat. 2. Mewujudkan perpaduan rakyat dan menjamin kestabilan/kemakmuran kerajaan. 3. Memperkenalkan undang-undang untuk mengawal rakyat.",
+                distractors: [
+                    "Menjadi pendayung kapal perang, membina jalan raya & membayar ufti",
+                    "Menguruskan gudang pelabuhan secara peribadi & menjadi malim pelayaran",
+                    "Menjalankan perniagaan harian di pasar & memungut hasil hutan"
+                ]
+            },
+            {
+                id: 20,
+                part: "BAHAGIAN 7: Peranan Pemerintah dan Diperintah",
+                question: "Nyatakan empat peranan rakyat kepada pemerintah dalam Kesultanan Melayu Melaka.",
+                correctShort: "Taat setia & tidak menderhaka, patuh arahan/undang-undang, menjadi tentera/pendayung, serta sistem kerah & gotong-royong",
+                fullExplanation: "1. Menunjukkan taat setia & tidak menderhaka. 2. Mematuhi arahan & undang-undang. 3. Menjadi tentera & pengayuh/pendayung kapal perang. 4. Menyumbang tenaga melalui sistem kerah (bina istana/jalan) & gotong-royong.",
+                distractors: [
+                    "Menggubal undang-undang istana, mengurniakan kawasan pegangan & melantik pembesar",
+                    "Mengesahkan arahan cap mohor, mengetuai angkatan tentera & menjadi pemangku raja",
+                    "Mengecualikan cukai pelabuhan, mengadili kes jenayah & memimpin utusan diraja"
+                ]
+            }
+        ];
+
+        /**
+         * ============================================================================
+         * 2. SYNTHESIZED SOUND ENGINE (Web Audio API - No External MP3 Required)
+         * ============================================================================
+         */
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+            playTone(freq, type, duration, vol = 0.15, slideFreq = null) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    if (slideFreq) {
+                        osc.frequency.exponentialRampToValueAtTime(slideFreq, this.ctx.currentTime + duration);
+                    }
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+            playHoverTick() {
+                this.playTone(520, 'sine', 0.06, 0.06, 680);
+            }
+            playPinchClick() {
+                this.playTone(700, 'triangle', 0.09, 0.12, 980);
+            }
+            playCorrect() {
+                // Royal Gong + Fanfare Chime
+                this.playTone(523.25, 'triangle', 0.15, 0.18);
+                setTimeout(() => this.playTone(659.25, 'triangle', 0.15, 0.18), 100);
+                setTimeout(() => this.playTone(783.99, 'triangle', 0.2, 0.2), 200);
+                setTimeout(() => this.playTone(1046.5, 'sine', 0.45, 0.22), 300);
+            }
+            playWrong() {
+                this.playTone(220, 'sawtooth', 0.25, 0.16, 130);
+                setTimeout(() => this.playTone(150, 'sawtooth', 0.35, 0.18, 95), 180);
+            }
+            playTurnFanfare() {
+                this.playTone(440, 'sine', 0.15, 0.15);
+                setTimeout(() => this.playTone(554.37, 'sine', 0.15, 0.15), 130);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.35, 0.2), 260);
+            }
+        }
+
+        const SFX = new SoundEffects();
+
+        /**
+         * ============================================================================
+         * 3. HYBRID MOTION CONTROLLER (MediaPipe HandLandmarker + FaceLandmarker)
+         * ============================================================================
+         */
+        class MotionController {
+            constructor() {
+                this.video = document.getElementById('webcam-video');
+                this.previewVideo = document.getElementById('calib-preview-video');
+                this.handLandmarker = null;
+                this.faceLandmarker = null;
+                this.cameraReady = false;
+                this.modelsReady = false;
+                this.isLoadingModels = false;
+                this.isMirror = true;
+                this.showARSkeleton = true;
+                this.currentStream = null;
+                this.selectedDeviceId = null;
+
+                // Smoothed Fingertip Coordinates (Canvas Space)
+                this.pointerX = window.innerWidth / 2;
+                this.pointerY = window.innerHeight / 2;
+                this.rawX = window.innerWidth / 2;
+                this.rawY = window.innerHeight / 2;
+                this.lerpFactor = 0.32; // Smooth LERP stabilization
+
+                this.handDetected = false;
+                this.faceDetected = false;
+                this.isPinching = false;
+                this.pinchJustTriggered = false;
+                this._prevPinchState = false;
+
+                // Raw normalized landmarks for AR Skeleton visualization
+                this.latestHandLandmarks = null;
+
+                // Head Steering X (Normalized 0..1 on screen)
+                this.headTargetX = window.innerWidth / 2;
+                this.headTiltAngle = 0;
+
+                this.lastVideoTime = -1;
+            }
+
+            stopCurrentStream() {
+                if (this.currentStream) {
+                    this.currentStream.getTracks().forEach(track => {
+                        try { track.stop(); } catch (e) {}
+                    });
+                    this.currentStream = null;
+                }
+            }
+
+            /**
+             * Multi-tier camera stream request to maximize compatibility across all browsers & webcams
+             */
+            async requestCameraStream(preferredDeviceId = null) {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Pelayar ini tidak menyokong API navigator.mediaDevices.getUserMedia.");
+                }
+
+                this.stopCurrentStream();
+
+                const constraintFallbacks = [];
+                if (preferredDeviceId) {
+                    constraintFallbacks.push({
+                        video: { deviceId: { exact: preferredDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false
+                    });
+                    constraintFallbacks.push({
+                        video: { deviceId: { exact: preferredDeviceId } },
+                        audio: false
+                    });
+                }
+
+                // Tier 1: Ideal HD User-facing
+                constraintFallbacks.push({
+                    video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false
+                });
+                // Tier 2: Standard 640x480 User-facing
+                constraintFallbacks.push({
+                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                // Tier 3: Any User-facing camera
+                constraintFallbacks.push({
+                    video: { facingMode: "user" },
+                    audio: false
+                });
+                // Tier 4: Any available video input device
+                constraintFallbacks.push({
+                    video: true,
+                    audio: false
+                });
+
+                let lastError = null;
+                for (const constraints of constraintFallbacks) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                        if (stream) return stream;
+                    } catch (err) {
+                        lastError = err;
+                        // If user explicitly denied permission, don't spam prompts unless it's OverconstrainedError
+                        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                            break;
+                        }
+                    }
+                }
+                throw lastError || new Error("Tiada kamera ditemui.");
+            }
+
+            async attachStreamToVideos(stream) {
+                this.currentStream = stream;
+                this.video.srcObject = stream;
+                this.video.setAttribute('playsinline', '');
+                this.video.muted = true;
+
+                if (this.previewVideo) {
+                    this.previewVideo.srcObject = stream;
+                    this.previewVideo.classList.remove('hidden');
+                }
+                const placeholder = document.getElementById('calib-preview-placeholder');
+                if (placeholder) placeholder.classList.add('hidden');
+
+                // Safely wait for metadata with timeout so it never hangs
+                await new Promise((resolve) => {
+                    if (this.video.readyState >= 1) {
+                        resolve();
+                        return;
+                    }
+                    const timeoutId = setTimeout(resolve, 2500);
+                    this.video.onloadedmetadata = () => {
+                        clearTimeout(timeoutId);
+                        resolve();
+                    };
+                });
+
+                try {
+                    await this.video.play();
+                } catch (playErr) {
+                    console.warn("Auto-play video warning:", playErr);
+                }
+                if (this.previewVideo) {
+                    try { await this.previewVideo.play(); } catch (e) {}
+                }
+
+                this.cameraReady = true;
+                await this.populateCameraList();
+            }
+
+            async populateCameraList() {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                    const selectEl = document.getElementById('camera-select');
+                    if (!selectEl) return;
+
+                    if (videoDevices.length > 1) {
+                        selectEl.classList.remove('hidden');
+                        selectEl.innerHTML = videoDevices.map((d, idx) => {
+                            const label = d.label || `Kamera ${idx + 1}`;
+                            const selected = (this.selectedDeviceId === d.deviceId) ? 'selected' : '';
+                            return `<option value="${d.deviceId}" ${selected}>📷 ${label}</option>`;
+                        }).join('');
+                    } else {
+                        selectEl.classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.warn("Gagal menyenaraikan peranti kamera:", e);
+                }
+            }
+
+            async resolveVisionLibrary() {
+                if (window.FilesetResolver && window.HandLandmarker && window.FaceLandmarker) {
+                    return {
+                        FilesetResolver: window.FilesetResolver,
+                        HandLandmarker: window.HandLandmarker,
+                        FaceLandmarker: window.FaceLandmarker
+                    };
+                }
+                // Fallback ESM Dynamic Import if global script didn't bind to window
+                const module = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm");
+                return {
+                    FilesetResolver: module.FilesetResolver,
+                    HandLandmarker: module.HandLandmarker,
+                    FaceLandmarker: module.FaceLandmarker
+                };
+            }
+
+            async loadMediaPipeModels() {
+                if (this.modelsReady || this.isLoadingModels) return;
+                this.isLoadingModels = true;
+
+                const statusText = document.getElementById('calib-status-text');
+                const subText = document.getElementById('calib-sub-text');
+                const spinner = document.getElementById('calib-spinner');
+
+                try {
+                    if (statusText) statusText.textContent = "Memuatkan AI Hand & Face Landmarker...";
+                    const { FilesetResolver, HandLandmarker, FaceLandmarker } = await this.resolveVisionLibrary();
+
+                    const vision = await FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+                    );
+
+                    // Helper to try GPU first, then fallback to CPU if GPU fails on device
+                    const createHand = async (delegateType) => {
+                        return await HandLandmarker.createFromOptions(vision, {
+                            baseOptions: {
+                                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+                                delegate: delegateType
+                            },
+                            runningMode: "VIDEO",
+                            numHands: 1
+                        });
+                    };
+
+                    const createFace = async (delegateType) => {
+                        return await FaceLandmarker.createFromOptions(vision, {
+                            baseOptions: {
+                                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                                delegate: delegateType
+                            },
+                            runningMode: "VIDEO",
+                            numFaces: 1
+                        });
+                    };
+
+                    try {
+                        this.handLandmarker = await createHand("GPU");
+                    } catch (e) {
+                        console.warn("GPU HandLandmarker gagal, beralih ke CPU:", e);
+                        this.handLandmarker = await createHand("CPU");
+                    }
+
+                    try {
+                        this.faceLandmarker = await createFace("GPU");
+                    } catch (e) {
+                        console.warn("GPU FaceLandmarker gagal, beralih ke CPU:", e);
+                        this.faceLandmarker = await createFace("CPU");
+                    }
+
+                    this.modelsReady = true;
+                    if (spinner) spinner.classList.add('hidden');
+                    if (statusText) {
+                        statusText.innerHTML = "✅ Kamera AR & Kawalan Pergerakan Hibrid Aktif!";
+                        statusText.className = "text-sm sm:text-base font-bold text-emerald-400";
+                    }
+                    if (subText) {
+                        subText.innerHTML = "Angkat tangan anda di hadapan kamera untuk menguji titik jari telunjuk & gerak kepala!";
+                    }
+                } catch (mpErr) {
+                    console.warn("MediaPipe gagal dimuatkan, menggunakan kamera + fallback kawalan:", mpErr);
+                    this.modelsReady = false;
+                    if (spinner) spinner.classList.add('hidden');
+                    if (statusText) {
+                        statusText.innerHTML = "✅ Kamera AR Aktif (Kawalan Tetikus/Sentuh)";
+                        statusText.className = "text-sm sm:text-base font-bold text-emerald-300";
+                    }
+                } finally {
+                    this.isLoadingModels = false;
+                }
+            }
+
+            async initialize(preferredDeviceId = null) {
+                const statusText = document.getElementById('calib-status-text');
+                const subText = document.getElementById('calib-sub-text');
+                const spinner = document.getElementById('calib-spinner');
+                const camBadge = document.getElementById('calib-cam-badge');
+                const hudCamTxt = document.getElementById('txt-hud-cam');
+
+                if (spinner) spinner.classList.remove('hidden');
+                if (statusText) {
+                    statusText.textContent = " sedang membuka kamera peranti anda...";
+                    statusText.className = "text-sm sm:text-base font-bold text-amber-300";
+                }
+                if (camBadge) {
+                    camBadge.textContent = "Menyambung...";
+                    camBadge.className = "absolute bottom-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/85 text-amber-300 border border-amber-400/40";
+                }
+
+                try {
+                    // 1. Request Camera Stream immediately on user interaction
+                    const stream = await this.requestCameraStream(preferredDeviceId);
+                    await this.attachStreamToVideos(stream);
+
+                    if (camBadge) {
+                        camBadge.textContent = "LIVE AR 🔴";
+                        camBadge.className = "absolute bottom-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-400";
+                    }
+                    if (hudCamTxt) hudCamTxt.textContent = "Kamera: ON";
+                } catch (camErr) {
+                    console.warn("Kamera tidak dapat diakses:", camErr);
+                    this.cameraReady = false;
+                    if (spinner) spinner.classList.add('hidden');
+
+                    let errMsg = "Tiada kamera dikesan atau kamera sedang digunakan oleh aplikasi lain.";
+                    if (camErr && (camErr.name === 'NotAllowedError' || camErr.name === 'PermissionDeniedError')) {
+                        errMsg = "Akses kamera telah disekat oleh pelayar. Sila klik ikon kunci/kamera pada bar alamat pelayar di atas, pilih 'Allow/Benarkan', kemudian klik 'Cuba Buka Kamera Semula'.";
+                    } else if (camErr && camErr.name === 'NotReadableError') {
+                        errMsg = "Kamera sedang digunakan oleh aplikasi lain (seperti Zoom/Meet/Tab lain). Tutup aplikasi tersebut dan klik 'Cuba Buka Kamera Semula'.";
+                    }
+
+                    if (camBadge) {
+                        camBadge.textContent = "Kamera OFF";
+                        camBadge.className = "absolute bottom-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-950/90 text-red-300 border border-red-400";
+                    }
+                    if (hudCamTxt) hudCamTxt.textContent = "Buka Kamera";
+                    if (statusText) {
+                        statusText.innerHTML = "⚠️ Kamera Belum Dibuka (Mod Tetikus & Kekunci Aktif)";
+                        statusText.className = "text-sm sm:text-base font-bold text-amber-300";
+                    }
+                    if (subText) {
+                        subText.innerHTML = `${errMsg}<br><span class="text-sky-300 font-semibold">Anda masih boleh terus bermain menggunakan Tetikus / Skrin Sentuh & Kekunci A/D!</span>`;
+                    }
+                    return;
+                }
+
+                // 2. Load MediaPipe Vision Tasks (Hand + Face Landmarker)
+                await this.loadMediaPipeModels();
+            }
+
+            /**
+             * Exact Coordinate Mapping taking into account `object-fit: cover`,
+             * aspect ratio cropping, and Mirror Mode.
+             */
+            mapNormalizedToCanvas(normX, normY, canvasWidth, canvasHeight) {
+                const vw = this.video.videoWidth || 1280;
+                const vh = this.video.videoHeight || 720;
+
+                const scale = Math.max(canvasWidth / vw, canvasHeight / vh);
+                const scaledWidth = vw * scale;
+                const scaledHeight = vh * scale;
+                const offsetX = (canvasWidth - scaledWidth) / 2;
+                const offsetY = (canvasHeight - scaledHeight) / 2;
+
+                const finalNormX = this.isMirror ? (1 - normX) : normX;
+                const screenX = finalNormX * scaledWidth + offsetX;
+                const screenY = normY * scaledHeight + offsetY;
+
+                return {
+                    x: Math.max(20, Math.min(canvasWidth - 20, screenX)),
+                    y: Math.max(20, Math.min(canvasHeight - 20, screenY))
+                };
+            }
+
+            update(canvasWidth, canvasHeight) {
+                this.pinchJustTriggered = false;
+
+                if (
+                    this.cameraReady &&
+                    this.modelsReady &&
+                    this.video.readyState >= 2 &&
+                    this.video.videoWidth > 0 &&
+                    this.video.videoHeight > 0
+                ) {
+                    const nowMs = performance.now();
+                    if (this.video.currentTime !== this.lastVideoTime) {
+                        this.lastVideoTime = this.video.currentTime;
+
+                        // 1. Detect Hand Landmarks
+                        if (this.handLandmarker) {
+                            try {
+                                const handRes = this.handLandmarker.detectForVideo(this.video, nowMs);
+                                if (handRes && handRes.landmarks && handRes.landmarks.length > 0) {
+                                    this.handDetected = true;
+                                    const lm = handRes.landmarks[0];
+                                    this.latestHandLandmarks = lm;
+
+                                    // Index Finger Tip = landmark[8], Thumb Tip = landmark[4]
+                                    const indexTip = lm[8];
+                                    const thumbTip = lm[4];
+
+                                    const mapped = this.mapNormalizedToCanvas(indexTip.x, indexTip.y, canvasWidth, canvasHeight);
+                                    this.rawX = mapped.x;
+                                    this.rawY = mapped.y;
+
+                                    // Pinch Distance in 2D normalized coordinates
+                                    const dx = indexTip.x - thumbTip.x;
+                                    const dy = indexTip.y - thumbTip.y;
+                                    const dist = Math.hypot(dx, dy);
+
+                                    this.isPinching = dist < 0.055;
+                                    if (this.isPinching && !this._prevPinchState) {
+                                        this.pinchJustTriggered = true;
+                                    }
+                                    this._prevPinchState = this.isPinching;
+                                } else {
+                                    this.handDetected = false;
+                                    this.latestHandLandmarks = null;
+                                    this.isPinching = false;
+                                    this._prevPinchState = false;
+                                }
+                            } catch (e) {
+                                // Abaikan ralat frame sementara
+                            }
+                        }
+
+                        // 2. Detect Face Landmarks for Head Steering
+                        if (this.faceLandmarker) {
+                            try {
+                                const faceRes = this.faceLandmarker.detectForVideo(this.video, nowMs + 1);
+                                if (faceRes && faceRes.faceLandmarks && faceRes.faceLandmarks.length > 0) {
+                                    this.faceDetected = true;
+                                    const flm = faceRes.faceLandmarks[0];
+                                    // Nose tip is landmark[1]
+                                    const nose = flm[1];
+                                    const mappedNose = this.mapNormalizedToCanvas(nose.x, nose.y, canvasWidth, canvasHeight);
+                                    this.headTargetX = mappedNose.x;
+
+                                    // Calculate head tilt between left eye (33) and right eye (263)
+                                    const leftEye = flm[33];
+                                    const rightEye = flm[263];
+                                    if (leftEye && rightEye) {
+                                        const dy = rightEye.y - leftEye.y;
+                                        this.headTiltAngle = this.isMirror ? -dy * 2.5 : dy * 2.5;
+                                    }
+                                } else {
+                                    this.faceDetected = false;
+                                }
+                            } catch (e) {
+                                // Abaikan ralat frame sementara
+                            }
+                        }
+                    }
+                }
+
+                // Apply LERP smoothing to avoid jitter
+                this.pointerX += (this.rawX - this.pointerX) * this.lerpFactor;
+                this.pointerY += (this.rawY - this.pointerY) * this.lerpFactor;
+
+                // Update Status Dots in HUD
+                const dotHand = document.getElementById('dot-hand');
+                const dotFace = document.getElementById('dot-face');
+                if (dotHand) {
+                    dotHand.className = `w-2.5 h-2.5 rounded-full inline-block ${this.handDetected ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-amber-500'}`;
+                }
+                if (dotFace) {
+                    dotFace.className = `w-2.5 h-2.5 rounded-full inline-block ${this.faceDetected ? 'bg-sky-400 shadow-[0_0_8px_#38bdf8]' : 'bg-amber-500'}`;
+                }
+            }
+
+            drawARSkeleton(ctx, canvasWidth, canvasHeight) {
+                if (!this.showARSkeleton || !this.handDetected || !this.latestHandLandmarks) return;
+
+                const connections = [
+                    [0,1],[1,2],[2,3],[3,4],       // Thumb
+                    [0,5],[5,6],[6,7],[7,8],       // Index
+                    [5,9],[9,10],[10,11],[11,12],  // Middle
+                    [9,13],[13,14],[14,15],[15,16],// Ring
+                    [13,17],[17,18],[18,19],[19,20],[0,17] // Pinky & Palm
+                ];
+
+                const pts = this.latestHandLandmarks.map(p =>
+                    this.mapNormalizedToCanvas(p.x, p.y, canvasWidth, canvasHeight)
+                );
+
+                ctx.save();
+                ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
+                ctx.lineWidth = 3;
+                ctx.lineCap = "round";
+
+                for (const [a, b] of connections) {
+                    ctx.beginPath();
+                    ctx.moveTo(pts[a].x, pts[a].y);
+                    ctx.lineTo(pts[b].x, pts[b].y);
+                    ctx.stroke();
+                }
+
+                for (let i = 0; i < pts.length; i++) {
+                    const isTip = (i === 8 || i === 4);
+                    ctx.beginPath();
+                    ctx.arc(pts[i].x, pts[i].y, isTip ? 7 : 4, 0, Math.PI * 2);
+                    ctx.fillStyle = isTip ? "#34d399" : "#fde047";
+                    ctx.fill();
+                    ctx.strokeStyle = "#0f172a";
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 4. MAIN GAME ENGINE (3D Cartoon Canvas Objects, Physics, Dwell & Collision)
+         * ============================================================================
+         */
+        class DaulatDashGame {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.motion = new MotionController();
+
+                this.state = 'MENU'; // MENU, CALIBRATION, PLAYING, PAUSED, TURN_SWITCH, GAMEOVER
+                this.turnMode = 'bergilir'; // 'bergilir' or 'solo'
+                this.currentPlayer = 1;
+                this.p1Score = 0;
+                this.p2Score = 0;
+
+                // Gameplay stats
+                this.score = 0;
+                this.lives = 5;
+                this.maxLives = 5;
+                this.combo = 1;
+                this.maxCombo = 1;
+                this.correctCount = 0;
+                this.totalAttempts = 0;
+                this.currentQIndex = 0;
+
+                // Adaptive Difficulty Pacing (0.75x to 1.45x)
+                this.difficultyMultiplier = 1.0;
+
+                // Cooldown & Dwell Time System
+                this.dwellDurationMs = 950; // ~1 second dwell time
+                this.cooldownDurationMs = 1350; // Mandatory cooldown after selection
+                this.cooldownUntil = 0;
+                this.hoveredTarget = null;
+                this.dwellStartTime = 0;
+
+                // Royal Jong Ship (Bottom of Arena, steered by Head or Keyboard/Mouse)
+                this.ship = {
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight - 78,
+                    width: 150,
+                    height: 64,
+                    tilt: 0
+                };
+
+                // Moving Answer Chests / Scrolls on Canvas
+                this.targets = [];
+                this.particles = [];
+                this.ripples = [];
+                this.floatingTexts = [];
+                this.waveOffset = 0;
+
+                // Keyboard Fallback State
+                this.keys = { left: false, right: false };
+
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                this.setupFallbackListeners();
+                this.populateStudyModal();
+
+                this.lastFrameTime = performance.now();
+                requestAnimationFrame((ts) => this.gameLoop(ts));
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.ship.y = this.canvas.height - 76;
+            }
+
+            setupFallbackListeners() {
+                // Mouse Move sets pointer if hand not actively overriding
+                this.canvas.addEventListener('mousemove', (e) => {
+                    if (!this.motion.handDetected) {
+                        this.motion.rawX = e.clientX;
+                        this.motion.rawY = e.clientY;
+                    }
+                    if (!this.motion.faceDetected) {
+                        this.motion.headTargetX = e.clientX;
+                    }
+                });
+
+                // Mouse Click acts as immediate Pinch trigger
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.motion.rawX = e.clientX;
+                    this.motion.rawY = e.clientY;
+                    this.motion.pointerX = e.clientX;
+                    this.motion.pointerY = e.clientY;
+                    this.motion.pinchJustTriggered = true;
+                });
+
+                // Touch Support for Mobile/Tablet
+                this.canvas.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 0) {
+                        const t = e.touches[0];
+                        this.motion.rawX = t.clientX;
+                        this.motion.rawY = t.clientY;
+                        this.motion.pointerX = t.clientX;
+                        this.motion.pointerY = t.clientY;
+                        this.motion.headTargetX = t.clientX;
+                    }
+                }, { passive: true });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    if (e.touches.length > 0) {
+                        const t = e.touches[0];
+                        this.motion.rawX = t.clientX;
+                        this.motion.rawY = t.clientY;
+                        this.motion.headTargetX = t.clientX;
+                    }
+                }, { passive: true });
+
+                // Keyboard Fallback for steering ship
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = true;
+                    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = true;
+                });
+                window.addEventListener('keyup', (e) => {
+                    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = false;
+                    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = false;
+                });
+            }
+
+            setTurnMode(mode) {
+                this.turnMode = mode;
+                const btnBergilir = document.getElementById('mode-btn-bergilir');
+                const btnSolo = document.getElementById('mode-btn-solo');
+                if (mode === 'bergilir') {
+                    btnBergilir.className = "p-3 rounded-2xl border-3 border-amber-400 bg-amber-500/25 text-left transition-all flex items-center gap-3";
+                    btnSolo.className = "p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-left transition-all flex items-center gap-3 opacity-80";
+                } else {
+                    btnSolo.className = "p-3 rounded-2xl border-3 border-sky-400 bg-sky-500/25 text-left transition-all flex items-center gap-3";
+                    btnBergilir.className = "p-3 rounded-2xl border-2 border-slate-700 bg-slate-800/60 text-left transition-all flex items-center gap-3 opacity-80";
+                }
+                SFX.playPinchClick();
+            }
+
+            async openCalibrationScreen() {
+                SFX.init();
+                SFX.playPinchClick();
+                document.getElementById('screen-menu').classList.add('hidden');
+                document.getElementById('screen-calibration').classList.remove('hidden');
+                this.state = 'CALIBRATION';
+                await this.motion.initialize(this.motion.selectedDeviceId);
+            }
+
+            async retryCamera() {
+                SFX.playPinchClick();
+                await this.motion.initialize(this.motion.selectedDeviceId);
+            }
+
+            async switchCameraDevice(deviceId) {
+                SFX.playPinchClick();
+                this.motion.selectedDeviceId = deviceId;
+                await this.motion.initialize(deviceId);
+            }
+
+            async retryCameraFromHUD() {
+                SFX.playPinchClick();
+                await this.motion.initialize(this.motion.selectedDeviceId);
+                if (this.motion.cameraReady) {
+                    this.showFeedbackBanner("📷 Kamera AR & Pengesanan Pergerakan Berjaya Diaktifkan!", true);
+                } else {
+                    this.showFeedbackBanner("⚠️ Kamera gagal dibuka. Pastikan kebenaran kamera (Allow) diaktifkan pada pelayar.", false);
+                }
+            }
+
+            backToMenu() {
+                SFX.playPinchClick();
+                this.state = 'MENU';
+                document.getElementById('hud-top').classList.add('hidden');
+                document.getElementById('hud-bottom').classList.add('hidden');
+                document.getElementById('screen-calibration').classList.add('hidden');
+                document.getElementById('screen-gameover').classList.add('hidden');
+                document.getElementById('modal-pause').classList.add('hidden');
+                document.getElementById('modal-turn-switch').classList.add('hidden');
+                document.getElementById('screen-menu').classList.remove('hidden');
+            }
+
+            startGameplay() {
+                SFX.playTurnFanfare();
+                document.getElementById('screen-calibration').classList.add('hidden');
+                document.getElementById('screen-gameover').classList.add('hidden');
+                document.getElementById('hud-top').classList.remove('hidden');
+                document.getElementById('hud-bottom').classList.remove('hidden');
+
+                // Reset Stats
+                this.score = 0;
+                this.p1Score = 0;
+                this.p2Score = 0;
+                this.currentPlayer = 1;
+                this.lives = this.maxLives;
+                this.combo = 1;
+                this.maxCombo = 1;
+                this.correctCount = 0;
+                this.totalAttempts = 0;
+                this.currentQIndex = 0;
+                this.difficultyMultiplier = 1.0;
+
+                this.state = 'PLAYING';
+                this.loadCurrentQuestion();
+                this.updateHUD();
+            }
+
+            restartGame() {
+                this.startGameplay();
+            }
+
+            togglePause() {
+                SFX.playPinchClick();
+                const pauseModal = document.getElementById('modal-pause');
+                if (this.state === 'PLAYING') {
+                    this.state = 'PAUSED';
+                    pauseModal.classList.remove('hidden');
+                } else if (this.state === 'PAUSED') {
+                    this.state = 'PLAYING';
+                    pauseModal.classList.add('hidden');
+                }
+            }
+
+            toggleMirror() {
+                this.motion.isMirror = !this.motion.isMirror;
+                const videoEl = document.getElementById('webcam-video');
+                const previewEl = document.getElementById('calib-preview-video');
+                const btn = document.getElementById('btn-mirror');
+                if (this.motion.isMirror) {
+                    videoEl.classList.add('mirror-on');
+                    if (previewEl) previewEl.classList.add('mirror-on');
+                    btn.innerHTML = `<i class="fa-solid fa-arrows-left-right"></i><span class="hidden lg:inline">Cermin: ON</span>`;
+                } else {
+                    videoEl.classList.remove('mirror-on');
+                    if (previewEl) previewEl.classList.remove('mirror-on');
+                    btn.innerHTML = `<i class="fa-solid fa-arrows-left-right"></i><span class="hidden lg:inline">Cermin: OFF</span>`;
+                }
+                SFX.playPinchClick();
+            }
+
+            toggleARSkeleton() {
+                this.motion.showARSkeleton = !this.motion.showARSkeleton;
+                const btn = document.getElementById('btn-ar-mesh');
+                btn.style.opacity = this.motion.showARSkeleton ? "1" : "0.55";
+                SFX.playPinchClick();
+            }
+
+            toggleAudio() {
+                SFX.enabled = !SFX.enabled;
+                const icon = document.getElementById('icon-audio');
+                icon.className = SFX.enabled
+                    ? "fa-solid fa-volume-high text-emerald-400"
+                    : "fa-solid fa-volume-xmark text-red-400";
+                if (SFX.enabled) SFX.playPinchClick();
+            }
+
+            openStudyModal() {
+                SFX.playPinchClick();
+                document.getElementById('modal-study').classList.remove('hidden');
+            }
+
+            closeStudyModal() {
+                SFX.playPinchClick();
+                document.getElementById('modal-study').classList.add('hidden');
+            }
+
+            populateStudyModal() {
+                const container = document.getElementById('study-list-container');
+                container.innerHTML = SEJARAH_QUESTIONS.map(q => `
+                    <div class="bg-slate-900/95 border-2 border-amber-500/40 rounded-2xl p-4 shadow">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                            <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                                Soalan ${q.id} • ${q.part}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm sm:text-base mb-2">${q.question}</h4>
+                        <div class="bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-3 text-xs sm:text-sm text-emerald-200">
+                            <strong class="text-emerald-400 block mb-0.5"><i class="fa-solid fa-circle-check mr-1"></i>Jawapan Tepat:</strong>
+                            ${q.fullExplanation}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            /**
+             * Spawn 4 floating/sailing Royal Chest Scrolls for the current question
+             */
+            loadCurrentQuestion() {
+                if (this.currentQIndex >= SEJARAH_QUESTIONS.length) {
+                    this.endGame(true);
+                    return;
+                }
+
+                const qData = SEJARAH_QUESTIONS[this.currentQIndex];
+
+                // Update Top Banner UI
+                document.getElementById('banner-q-index').textContent = qData.id;
+                document.getElementById('banner-part-title').textContent = qData.part;
+                document.getElementById('banner-question-text').textContent = qData.question;
+                document.getElementById('hud-q-num').textContent = qData.id;
+                document.getElementById('hud-chapter').textContent = qData.part.split(':')[0];
+
+                // Prepare 4 choices shuffled
+                const choices = [
+                    { text: qData.correctShort, isCorrect: true },
+                    ...qData.distractors.map(d => ({ text: d, isCorrect: false }))
+                ];
+                for (let i = choices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [choices[i], choices[j]] = [choices[j], choices[i]];
+                }
+
+                // Calculate responsive dimensions & lanes so cards never overlap
+                const cw = this.canvas.width;
+                const ch = this.canvas.height;
+                const isMobile = cw < 768;
+                const cardW = isMobile ? Math.min(cw * 0.44, 210) : Math.min(cw * 0.21, 270);
+                const cardH = isMobile ? 115 : 132;
+
+                this.targets = choices.map((c, idx) => {
+                    let x, y;
+                    if (isMobile) {
+                        // 2x2 Grid Floating Pattern on smaller screens
+                        const col = idx % 2;
+                        const row = Math.floor(idx / 2);
+                        x = (cw * 0.27) + col * (cw * 0.46);
+                        y = 210 + row * 145;
+                    } else {
+                        // 4 Horizontal Lanes across the arena
+                        const margin = cw * 0.14;
+                        const usableW = cw - margin * 2;
+                        x = margin + (usableW / 3) * idx;
+                        y = 230 + (idx % 2) * 55;
+                    }
+
+                    const baseSpeedY = (14 + Math.random() * 8) * this.difficultyMultiplier;
+                    const icons = ['📜', '👑', '⚖️', '⛵'];
+
+                    return {
+                        id: idx,
+                        text: c.text,
+                        isCorrect: c.isCorrect,
+                        x: x,
+                        baseX: x,
+                        y: y,
+                        width: cardW,
+                        height: cardH,
+                        vy: baseSpeedY,
+                        bobPhase: idx * 1.6,
+                        swayAmp: isMobile ? 12 : 24,
+                        icon: icons[idx % icons.length],
+                        scale: 1,
+                        hitCooldown: false
+                    };
+                });
+
+                this.hoveredTarget = null;
+                this.dwellStartTime = 0;
+                this.cooldownUntil = performance.now() + 500;
+            }
+
+            updateHUD() {
+                document.getElementById('hud-score').textContent = this.score;
+
+                // Lives Hearts
+                const livesContainer = document.getElementById('hud-lives');
+                let heartsHtml = '';
+                for (let i = 0; i < this.maxLives; i++) {
+                    if (i < this.lives) {
+                        heartsHtml += `<i class="fa-solid fa-heart text-red-500 drop-shadow"></i>`;
+                    } else {
+                        heartsHtml += `<i class="fa-regular fa-heart text-slate-600"></i>`;
+                    }
+                }
+                livesContainer.innerHTML = heartsHtml;
+
+                // Combo
+                const comboBox = document.getElementById('hud-combo-box');
+                if (this.combo > 1) {
+                    comboBox.classList.remove('hidden');
+                    document.getElementById('hud-combo').textContent = `x${this.combo}`;
+                } else {
+                    comboBox.classList.add('hidden');
+                }
+
+                // Player Turn Badge
+                const turnText = document.getElementById('hud-turn-text');
+                const turnBadge = document.getElementById('turn-badge');
+                if (this.turnMode === 'bergilir') {
+                    turnText.textContent = `Nakhoda ${this.currentPlayer}`;
+                    turnBadge.className = this.currentPlayer === 1
+                        ? "bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-cartoon font-bold px-3 py-1 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow"
+                        : "bg-gradient-to-r from-sky-400 to-cyan-300 text-slate-950 font-cartoon font-bold px-3 py-1 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow";
+                } else {
+                    turnText.textContent = `Nakhoda Solo`;
+                }
+
+                // Adaptive Difficulty Label
+                const diffBadge = document.getElementById('hud-adaptive-badge');
+                if (this.difficultyMultiplier >= 1.2) {
+                    diffBadge.textContent = "Adaptif: Laksamana 🔥";
+                    diffBadge.className = "text-[11px] bg-orange-500/30 border border-orange-400 text-orange-200 px-2 py-0.5 rounded-full font-bold";
+                } else if (this.difficultyMultiplier <= 0.85) {
+                    diffBadge.textContent = "Adaptif: Tenang 🛡️";
+                    diffBadge.className = "text-[11px] bg-sky-500/30 border border-sky-400 text-sky-200 px-2 py-0.5 rounded-full font-bold";
+                } else {
+                    diffBadge.textContent = "Adaptif: Normal ⚖️";
+                    diffBadge.className = "text-[11px] bg-emerald-500/30 border border-emerald-400 text-emerald-200 px-2 py-0.5 rounded-full font-bold";
+                }
+            }
+
+            showFeedbackBanner(message, isSuccess) {
+                const banner = document.getElementById('feedback-banner');
+                banner.textContent = message;
+                banner.className = isSuccess
+                    ? "px-5 py-2.5 rounded-2xl font-cartoon font-bold text-sm sm:text-base shadow-2xl border-2 text-center bg-emerald-950/95 border-emerald-400 text-emerald-200"
+                    : "px-5 py-2.5 rounded-2xl font-cartoon font-bold text-sm sm:text-base shadow-2xl border-2 text-center bg-red-950/95 border-red-400 text-red-200";
+                banner.classList.remove('hidden');
+
+                clearTimeout(this._feedbackTimeout);
+                this._feedbackTimeout = setTimeout(() => {
+                    banner.classList.add('hidden');
+                }, 2600);
+            }
+
+            spawnParticles(x, y, color, count = 24) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 2 + Math.random() * 7;
+                    this.particles.push({
+                        x, y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 2,
+                        radius: 4 + Math.random() * 5,
+                        color,
+                        alpha: 1
+                    });
+                }
+            }
+
+            spawnRipple(x, y, color = "#fbbf24") {
+                this.ripples.push({
+                    x, y,
+                    radius: 10,
+                    maxRadius: 85,
+                    color,
+                    alpha: 1
+                });
+            }
+
+            spawnFloatingText(x, y, text, color = "#fde047") {
+                this.floatingTexts.push({
+                    x, y,
+                    text,
+                    color,
+                    alpha: 1,
+                    vy: -1.8
+                });
+            }
+
+            /**
+             * Handle Selection of an Answer Target (via Dwell, Pinch, Click, or Ship Catch)
+             */
+            handleTargetSelection(target, nowMs) {
+                if (nowMs < this.cooldownUntil || target.hitCooldown) return;
+                this.cooldownUntil = nowMs + this.cooldownDurationMs;
+
+                this.totalAttempts++;
+                const qData = SEJARAH_QUESTIONS[this.currentQIndex];
+
+                this.spawnRipple(target.x, target.y, target.isCorrect ? "#34d399" : "#f87171");
+
+                if (target.isCorrect) {
+                    // CORRECT ANSWER!
+                    SFX.playCorrect();
+                    this.correctCount++;
+                    const earned = 100 * this.combo;
+                    this.score += earned;
+                    if (this.turnMode === 'bergilir') {
+                        if (this.currentPlayer === 1) this.p1Score += earned;
+                        else this.p2Score += earned;
+                    }
+
+                    this.combo++;
+                    if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+
+                    // Adaptive Difficulty scales up smoothly
+                    this.difficultyMultiplier = Math.min(1.45, this.difficultyMultiplier + 0.06);
+
+                    this.spawnParticles(target.x, target.y, "#fbbf24", 30);
+                    this.spawnParticles(target.x, target.y, "#34d399", 18);
+                    this.spawnFloatingText(target.x, target.y - 20, `+${earned} DAULAT! (x${this.combo - 1})`, "#34d399");
+
+                    this.showFeedbackBanner(`✅ TEPAT SEKALI! ${qData.fullExplanation}`, true);
+                    this.updateHUD();
+
+                    // Advance to next question after brief celebration
+                    this.currentQIndex++;
+                    setTimeout(() => {
+                        if (this.state !== 'PLAYING') return;
+                        if (this.currentQIndex >= SEJARAH_QUESTIONS.length) {
+                            this.endGame(true);
+                        } else if (this.turnMode === 'bergilir' && this.currentQIndex % 2 === 0) {
+                            this.triggerTurnSwitchModal();
+                        } else {
+                            this.loadCurrentQuestion();
+                            this.updateHUD();
+                        }
+                    }, 950);
+
+                } else {
+                    // WRONG ANSWER!
+                    SFX.playWrong();
+                    target.hitCooldown = true;
+                    this.lives--;
+                    this.combo = 1;
+
+                    // Adaptive Difficulty eases slightly to help student
+                    this.difficultyMultiplier = Math.max(0.75, this.difficultyMultiplier - 0.1);
+
+                    this.spawnParticles(target.x, target.y, "#ef4444", 22);
+                    this.spawnFloatingText(target.x, target.y - 20, `❌ SALAH! -1 NYAWA`, "#f87171");
+                    this.showFeedbackBanner(`⚠️ Kurang Tepat! Cuba pilih jawapan yang betul bagi Soalan ${qData.id}.`, false);
+                    this.updateHUD();
+
+                    if (this.lives <= 0) {
+                        setTimeout(() => this.endGame(false), 700);
+                    }
+                }
+            }
+
+            triggerTurnSwitchModal() {
+                this.state = 'TURN_SWITCH';
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                SFX.playTurnFanfare();
+
+                document.getElementById('turn-modal-title').textContent = `Giliran Nakhoda ${this.currentPlayer}!`;
+                document.getElementById('turn-modal-desc').textContent = `Bersedia untuk menjawab Soalan ${this.currentQIndex + 1} & ${this.currentQIndex + 2}.`;
+                document.getElementById('turn-score-p1').textContent = `${this.p1Score} Mata`;
+                document.getElementById('turn-score-p2').textContent = `${this.p2Score} Mata`;
+                document.getElementById('modal-turn-switch').classList.remove('hidden');
+            }
+
+            confirmTurnSwitch() {
+                SFX.playPinchClick();
+                document.getElementById('modal-turn-switch').classList.add('hidden');
+                this.state = 'PLAYING';
+                this.loadCurrentQuestion();
+                this.updateHUD();
+            }
+
+            endGame(isVictory) {
+                this.state = 'GAMEOVER';
+                document.getElementById('hud-top').classList.add('hidden');
+                document.getElementById('hud-bottom').classList.add('hidden');
+                document.getElementById('screen-gameover').classList.remove('hidden');
+
+                const titleEl = document.getElementById('end-title');
+                const subEl = document.getElementById('end-subtitle');
+                const badgeEl = document.getElementById('end-badge');
+
+                if (isVictory) {
+                    SFX.playCorrect();
+                    badgeEl.textContent = "🏆 MISI DIRAJA BERJAYA!";
+                    titleEl.textContent = "TAHNIAH, LAKSAMANA ULUNG!";
+                    subEl.textContent = "Anda berjaya menguasai kesemua 20 Soalan Warisan Negara Bangsa (Bab 1)!";
+                } else {
+                    SFX.playWrong();
+                    badgeEl.textContent = "⚓ KAPAL TERKANDAS";
+                    titleEl.textContent = "JANGAN PUTUS ASA!";
+                    subEl.textContent = "Ulang kaji Arkib 20 Soalan & cuba berlayar sekali lagi!";
+                }
+
+                const acc = this.totalAttempts > 0
+                    ? Math.round((this.correctCount / this.totalAttempts) * 100)
+                    : 0;
+
+                document.getElementById('end-score').textContent = this.score;
+                document.getElementById('end-accuracy').textContent = `${acc}%`;
+                document.getElementById('end-combo').textContent = `x${this.maxCombo}`;
+                document.getElementById('end-progress').textContent = `${this.currentQIndex}/20`;
+
+                const turnBreakdown = document.getElementById('end-turn-breakdown');
+                if (this.turnMode === 'bergilir') {
+                    turnBreakdown.classList.remove('hidden');
+                    document.getElementById('end-p1-score').textContent = `${this.p1Score} Mata`;
+                    document.getElementById('end-p2-score').textContent = `${this.p2Score} Mata`;
+                } else {
+                    turnBreakdown.classList.add('hidden');
+                }
+            }
+
+            /**
+             * AABB Collision Detection between a point/circle and target rectangle
+             */
+            checkPointInTarget(px, py, t) {
+                const halfW = t.width / 2;
+                const halfH = t.height / 2;
+                return (
+                    px >= t.x - halfW &&
+                    px <= t.x + halfW &&
+                    py >= t.y - halfH &&
+                    py <= t.y + halfH
+                );
+            }
+
+            /**
+             * AABB Collision between Royal Jong Ship and falling Target Chest
+             */
+            checkShipCollision(t) {
+                const sHalfW = this.ship.width * 0.42;
+                const sHalfH = this.ship.height * 0.4;
+                const tHalfW = t.width * 0.42;
+                const tHalfH = t.height * 0.42;
+
+                return (
+                    Math.abs(this.ship.x - t.x) < (sHalfW + tHalfW) &&
+                    Math.abs(this.ship.y - t.y) < (sHalfH + tHalfH)
+                );
+            }
+
+            /**
+             * ========================================================================
+             * 5. MAIN LOOP: UPDATE & 3D CARTOON CANVAS RENDER
+             * ========================================================================
+             */
+            gameLoop(timestamp) {
+                const dt = Math.min(0.05, (timestamp - this.lastFrameTime) / 1000);
+                this.lastFrameTime = timestamp;
+
+                const cw = this.canvas.width;
+                const ch = this.canvas.height;
+
+                // 1. Update Motion Landmarkers
+                if (this.state === 'CALIBRATION' || this.state === 'PLAYING') {
+                    this.motion.update(cw, ch);
+                }
+
+                // 2. Clear Transparent Canvas & Draw Subtle Royal Vignette so objects pop over Webcam
+                this.ctx.clearRect(0, 0, cw, ch);
+                this.drawArenaAtmosphere(cw, ch, dt);
+
+                // 3. Draw AR Hand Skeleton if active
+                if (this.state === 'CALIBRATION' || this.state === 'PLAYING') {
+                    this.motion.drawARSkeleton(this.ctx, cw, ch);
+                }
+
+                // 4. Gameplay Physics, Dwell & Collision Update
+                if (this.state === 'PLAYING') {
+                    this.updateGameplay(dt, timestamp, cw, ch);
+                    this.drawTargets();
+                    this.drawRoyalJongShip();
+                }
+
+                // 5. Visual Effects (Particles, Ripples, Floating Text)
+                this.updateAndDrawEffects(dt);
+
+                // 6. Draw Fingertip Pointer / Keris Cursor on top of Canvas
+                if (this.state === 'CALIBRATION' || this.state === 'PLAYING') {
+                    this.drawFingertipCursor(timestamp);
+                }
+
+                requestAnimationFrame((ts) => this.gameLoop(ts));
+            }
+
+            drawArenaAtmosphere(cw, ch, dt) {
+                this.waveOffset += dt * 1.8;
+
+                // Subtle top & bottom gradient vignette to ensure 100% readability over any webcam lighting
+                const grad = this.ctx.createLinearGradient(0, 0, 0, ch);
+                grad.addColorStop(0, "rgba(9, 13, 22, 0.55)");
+                grad.addColorStop(0.3, "rgba(9, 13, 22, 0.18)");
+                grad.addColorStop(0.75, "rgba(9, 13, 22, 0.22)");
+                grad.addColorStop(1, "rgba(12, 74, 110, 0.65)");
+                this.ctx.fillStyle = grad;
+                this.ctx.fillRect(0, 0, cw, ch);
+
+                // Animated 3D Cartoon Sea Waves at Bottom (Selat Melaka)
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, ch);
+                for (let x = 0; x <= cw; x += 40) {
+                    const y = ch - 38 + Math.sin(x * 0.015 + this.waveOffset) * 8;
+                    this.ctx.lineTo(x, y);
+                }
+                this.ctx.lineTo(cw, ch);
+                this.ctx.closePath();
+                this.ctx.fillStyle = "rgba(2, 132, 199, 0.55)";
+                this.ctx.fill();
+                this.ctx.restore();
+            }
+
+            updateGameplay(dt, nowMs, cw, ch) {
+                // 1. Update Ship Position via Head Steering OR Keyboard
+                if (this.keys.left) {
+                    this.motion.headTargetX -= 480 * dt;
+                }
+                if (this.keys.right) {
+                    this.motion.headTargetX += 480 * dt;
+                }
+                this.motion.headTargetX = Math.max(80, Math.min(cw - 80, this.motion.headTargetX));
+
+                const prevShipX = this.ship.x;
+                this.ship.x += (this.motion.headTargetX - this.ship.x) * 0.14;
+                this.ship.tilt = Math.max(-0.22, Math.min(0.22, (this.ship.x - prevShipX) * 0.015));
+
+                // 2. Update Floating Answer Chests & Check Collisions
+                let foundHover = null;
+
+                for (const t of this.targets) {
+                    if (t.hitCooldown) continue;
+
+                    t.bobPhase += dt * 2.2;
+                    t.x = t.baseX + Math.sin(t.bobPhase) * t.swayAmp;
+                    t.y += t.vy * dt;
+
+                    // Loop back to top smoothly if it reaches bottom wave without hitting ship
+                    if (t.y > ch - 55) {
+                        t.y = 185;
+                    }
+
+                    // Check if Ship catches the chest directly
+                    if (this.checkShipCollision(t)) {
+                        this.handleTargetSelection(t, nowMs);
+                        return;
+                    }
+
+                    // Check Fingertip Pointer collision
+                    if (this.checkPointInTarget(this.motion.pointerX, this.motion.pointerY, t)) {
+                        foundHover = t;
+                    }
+                }
+
+                // 3. Process Dwell Time (~1s) OR Pinch Selection
+                if (foundHover && nowMs >= this.cooldownUntil) {
+                    if (this.hoveredTarget !== foundHover) {
+                        this.hoveredTarget = foundHover;
+                        this.dwellStartTime = nowMs;
+                        SFX.playHoverTick();
+                    } else {
+                        const elapsed = nowMs - this.dwellStartTime;
+                        // Trigger if Dwell completed OR Pinch triggered
+                        if (elapsed >= this.dwellDurationMs || this.motion.pinchJustTriggered) {
+                            this.handleTargetSelection(foundHover, nowMs);
+                            this.hoveredTarget = null;
+                            this.dwellStartTime = 0;
+                        }
+                    }
+                } else {
+                    this.hoveredTarget = null;
+                    this.dwellStartTime = 0;
+                }
+            }
+
+            /**
+             * Draw 3D Cartoon Answer Chests / Scrolls with clear multi-line text wrapping
+             */
+            drawTargets() {
+                const ctx = this.ctx;
+
+                for (const t of this.targets) {
+                    const isHovered = (this.hoveredTarget === t);
+                    const scale = isHovered ? 1.07 : (t.hitCooldown ? 0.9 : 1.0);
+
+                    ctx.save();
+                    ctx.translate(t.x, t.y);
+                    ctx.scale(scale, scale);
+
+                    const w = t.width;
+                    const h = t.height;
+                    const rx = -w / 2;
+                    const ry = -h / 2;
+
+                    if (t.hitCooldown) {
+                        ctx.globalAlpha = 0.4;
+                    }
+
+                    // 3D Cartoon Extrusion Shadow
+                    this.roundRect(ctx, rx, ry + 8, w, h, 20);
+                    ctx.fillStyle = isHovered ? "#065f46" : "#451a03";
+                    ctx.fill();
+
+                    // Main Card Body
+                    this.roundRect(ctx, rx, ry, w, h, 20);
+                    const grad = ctx.createLinearGradient(0, ry, 0, ry + h);
+                    if (t.hitCooldown) {
+                        grad.addColorStop(0, "#475569");
+                        grad.addColorStop(1, "#1e293b");
+                    } else if (isHovered) {
+                        grad.addColorStop(0, "#fef08a");
+                        grad.addColorStop(1, "#f59e0b");
+                    } else {
+                        grad.addColorStop(0, "#1e293b");
+                        grad.addColorStop(1, "#0f172a");
+                    }
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+
+                    // 3D Cartoon Border
+                    ctx.lineWidth = isHovered ? 4.5 : 3;
+                    ctx.strokeStyle = isHovered ? "#34d399" : "#fbbf24";
+                    ctx.stroke();
+
+                    // Top Emblem Badge
+                    ctx.beginPath();
+                    ctx.arc(0, ry + 4, 18, 0, Math.PI * 2);
+                    ctx.fillStyle = isHovered ? "#059669" : "#d97706";
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = "#fef08a";
+                    ctx.stroke();
+
+                    ctx.font = "16px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(t.icon, 0, ry + 5);
+
+                    // Answer Text (Wrapped neatly inside card)
+                    ctx.fillStyle = isHovered ? "#0f172a" : "#f8fafc";
+                    const fontSize = w < 220 ? 12.5 : 14;
+                    ctx.font = `700 ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+                    this.wrapText(ctx, t.text, 0, -4, w - 24, fontSize + 4);
+
+                    ctx.restore();
+                }
+            }
+
+            /**
+             * Draw the 3D Cartoon Royal Melaka Jong Ship at the bottom of the screen
+             */
+            drawRoyalJongShip() {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.translate(this.ship.x, this.ship.y);
+                ctx.rotate(this.ship.tilt);
+
+                // Glow under ship
+                ctx.beginPath();
+                ctx.ellipse(0, 22, 75, 14, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(56, 189, 248, 0.35)";
+                ctx.fill();
+
+                // Sail (Layar Diraja Melaka)
+                ctx.beginPath();
+                ctx.moveTo(0, -68);
+                ctx.quadraticCurveTo(48, -42, 38, -8);
+                ctx.lineTo(-38, -8);
+                ctx.quadraticCurveTo(-48, -42, 0, -68);
+                ctx.fillStyle = "#fbbf24";
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "#78350f";
+                ctx.stroke();
+
+                // Crown Emblem on Sail
+                ctx.font = "20px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("👑", 0, -30);
+
+                // Ship Hull (Badan Jong)
+                ctx.beginPath();
+                ctx.moveTo(-68, -8);
+                ctx.lineTo(68, -8);
+                ctx.lineTo(48, 22);
+                ctx.lineTo(-48, 22);
+                ctx.closePath();
+                ctx.fillStyle = "#92400e";
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "#fde047";
+                ctx.stroke();
+
+                // Label on Hull
+                ctx.fillStyle = "#fef08a";
+                ctx.font = "700 11px 'Fredoka', sans-serif";
+                ctx.fillText(this.turnMode === 'bergilir' ? `JONG NAKHODA ${this.currentPlayer}` : "JONG DIRAJA MELAKA", 0, 8);
+
+                ctx.restore();
+            }
+
+            /**
+             * Draw Real-time Fingertip Pointer + Dwell Progress Ring + Pinch Indicator
+             */
+            drawFingertipCursor(nowMs) {
+                const ctx = this.ctx;
+                const px = this.motion.pointerX;
+                const py = this.motion.pointerY;
+
+                ctx.save();
+
+                // Dwell Progress Arc (~1s)
+                if (this.hoveredTarget && nowMs >= this.cooldownUntil) {
+                    const progress = Math.min(1, (nowMs - this.dwellStartTime) / this.dwellDurationMs);
+                    ctx.beginPath();
+                    ctx.arc(px, py, 32, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));
+                    ctx.strokeStyle = "#34d399";
+                    ctx.lineWidth = 6;
+                    ctx.lineCap = "round";
+                    ctx.stroke();
+                }
+
+                // Outer Glowing Ring
+                ctx.beginPath();
+                ctx.arc(px, py, this.motion.isPinching ? 16 : 22, 0, Math.PI * 2);
+                ctx.fillStyle = this.motion.isPinching
+                    ? "rgba(52, 211, 153, 0.45)"
+                    : "rgba(251, 191, 36, 0.28)";
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.motion.isPinching ? "#34d399" : "#fde047";
+                ctx.stroke();
+
+                // Center Dot
+                ctx.beginPath();
+                ctx.arc(px, py, 6, 0, Math.PI * 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.fill();
+
+                // Keris / Hand Emoji Badge
+                ctx.font = "18px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.motion.isPinching ? "🤏" : "☝️", px + 20, py - 20);
+
+                ctx.restore();
+            }
+
+            updateAndDrawEffects(dt) {
+                const ctx = this.ctx;
+
+                // Ripples
+                for (let i = this.ripples.length - 1; i >= 0; i--) {
+                    const r = this.ripples[i];
+                    r.radius += 140 * dt;
+                    r.alpha -= 1.6 * dt;
+                    if (r.alpha <= 0) {
+                        this.ripples.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = r.color;
+                    ctx.globalAlpha = Math.max(0, r.alpha);
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.18; // gravity
+                    p.alpha -= 1.2 * dt;
+                    if (p.alpha <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Floating Score Texts
+                for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+                    const ft = this.floatingTexts[i];
+                    ft.y += ft.vy;
+                    ft.alpha -= 0.9 * dt;
+                    if (ft.alpha <= 0) {
+                        this.floatingTexts.splice(i, 1);
+                        continue;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, ft.alpha);
+                    ctx.font = "800 20px 'Fredoka', sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.strokeStyle = "#0f172a";
+                    ctx.lineWidth = 4;
+                    ctx.strokeText(ft.text, ft.x, ft.y);
+                    ctx.fillStyle = ft.color;
+                    ctx.fillText(ft.text, ft.x, ft.y);
+                    ctx.restore();
+                }
+            }
+
+            roundRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+            }
+
+            wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+                const words = text.split(' ');
+                let line = '';
+                const lines = [];
+
+                for (let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && n > 0) {
+                        lines.push(line.trim());
+                        line = words[n] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line.trim());
+
+                const totalHeight = lines.length * lineHeight;
+                let startY = y - (totalHeight / 2) + (lineHeight / 2) + 6;
+
+                for (let i = 0; i < lines.length; i++) {
+                    ctx.fillText(lines[i], x, startY + i * lineHeight);
+                }
+            }
+        }
+
+        // Initialize Game on Window Load
+        let GameApp;
+        window.onload = () => {
+            GameApp = new DaulatDashGame();
+        };
+    </script>
+</body>
+</html>
